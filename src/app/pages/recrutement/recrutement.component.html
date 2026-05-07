@@ -1,0 +1,138 @@
+<div class="topbar">
+  <div class="topbar__title">
+    {{ isEdit ? 'Modifier' : 'Recrutement' }}
+    <span>/ {{ isEdit ? fullName : 'Nouveau soignant' }}</span>
+  </div>
+  <a routerLink="/soignants" class="btn-gs-ghost"><i class="bi bi-arrow-left"></i> Retour</a>
+</div>
+
+<div class="page-content">
+  <div class="row justify-content-center">
+    <div class="col-lg-8">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()">
+
+        <!-- IDENTITÉ -->
+        <div class="gs-card mb-3">
+          <div class="gs-card__header">
+            <span class="gs-card__header-title"><i class="bi bi-person me-2"></i>Identité</span>
+          </div>
+          <div class="gs-card__body">
+            <div class="mb-3">
+              <label class="gs-form__label">Numéro RPPS *</label>
+              <input class="gs-form__input gs-form__input--rpps"
+                formControlName="rpps" placeholder="11 chiffres"
+                [class.is-invalid]="isInvalid('rpps')" />
+              @if (isInvalid('rpps')) {
+                <div class="gs-form__error">Le RPPS doit contenir exactement 11 chiffres</div>
+              }
+            </div>
+            <div class="row g-3">
+              <div class="col-3">
+                <label class="gs-form__label">Titre</label>
+                <select class="gs-form__input gs-form__select" formControlName="prefix">
+                  <option value="Dr.">Dr.</option>
+                  <option value="Pr.">Pr.</option>
+                  <option value="M.">M.</option>
+                  <option value="Mme">Mme</option>
+                </select>
+              </div>
+              <div class="col-4">
+                <label class="gs-form__label">Prénom *</label>
+                <input class="gs-form__input" formControlName="firstName"
+                  placeholder="Prénom" [class.is-invalid]="isInvalid('firstName')" />
+                @if (isInvalid('firstName')) { <div class="gs-form__error">Champ requis</div> }
+              </div>
+              <div class="col-5">
+                <label class="gs-form__label">Nom *</label>
+                <input class="gs-form__input" formControlName="lastName"
+                  placeholder="Nom de famille" [class.is-invalid]="isInvalid('lastName')" />
+                @if (isInvalid('lastName')) { <div class="gs-form__error">Champ requis</div> }
+              </div>
+            </div>
+            <div class="row g-3 mt-1">
+              <div class="col-6">
+                <label class="gs-form__label">Genre *</label>
+                <select class="gs-form__input gs-form__select" formControlName="gender"
+                  [class.is-invalid]="isInvalid('gender')">
+                  <option value="">— Sélectionner —</option>
+                  <option value="male">Masculin</option>
+                  <option value="female">Féminin</option>
+                  <option value="other">Autre</option>
+                  <option value="unknown">Non renseigné</option>
+                </select>
+                @if (isInvalid('gender')) { <div class="gs-form__error">Champ requis</div> }
+              </div>
+              <div class="col-6">
+                <label class="gs-form__label">Date de naissance *</label>
+                <input class="gs-form__input" formControlName="birthDate" type="date"
+                  [class.is-invalid]="isInvalid('birthDate')" />
+                @if (isInvalid('birthDate')) { <div class="gs-form__error">Champ requis</div> }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- CONTACT -->
+        <div class="gs-card mb-3">
+          <div class="gs-card__header">
+            <span class="gs-card__header-title"><i class="bi bi-telephone me-2"></i>Coordonnées</span>
+          </div>
+          <div class="gs-card__body">
+            <div class="row g-3">
+              <div class="col-6">
+                <label class="gs-form__label">Téléphone</label>
+                <input class="gs-form__input" formControlName="phone" placeholder="+33..." />
+              </div>
+              <div class="col-6">
+                <label class="gs-form__label">Email</label>
+                <input class="gs-form__input" formControlName="email" type="email"
+                  placeholder="prenom.nom@..." />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SPÉCIALITÉ -->
+        <div class="gs-card mb-3">
+          <div class="gs-card__header">
+            <span class="gs-card__header-title"><i class="bi bi-briefcase me-2"></i>Spécialité (TRE-R38)</span>
+          </div>
+          <div class="gs-card__body">
+            <div class="row g-3">
+              <div class="col-8">
+                <label class="gs-form__label">Spécialité *</label>
+                <select class="gs-form__input gs-form__select" formControlName="specialty"
+                  [class.is-invalid]="isInvalid('specialty')">
+                  <option value="">— Sélectionner —</option>
+                  <option value="Médecine générale">Médecine générale (SM26)</option>
+                  <option value="Chirurgie générale">Chirurgie générale (SM54)</option>
+                  <option value="Cardiologie">Cardiologie (SM04)</option>
+                  <option value="Chirurgie pédiatrique">Chirurgie infantile (SM44)</option>
+                  <option value="Chirurgie cardiaque">Chirurgie cardiaque (SM03)</option>
+                </select>
+                @if (isInvalid('specialty')) { <div class="gs-form__error">Champ requis</div> }
+              </div>
+              <div class="col-4">
+                <label class="gs-form__label">Statut</label>
+                <select class="gs-form__input gs-form__select" formControlName="active">
+                  <option [ngValue]="true">Actif</option>
+                  <option [ngValue]="false">Inactif</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTIONS -->
+        <div class="d-flex justify-content-end gap-2">
+          <a routerLink="/soignants" class="btn-gs-ghost">Annuler</a>
+          <button type="submit" class="btn-gs-primary" [disabled]="form.invalid">
+            <i class="bi" [class]="isEdit ? 'bi-check-circle' : 'bi-person-check'"></i>
+            {{ isEdit ? 'Enregistrer les modifications' : 'Créer le soignant' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

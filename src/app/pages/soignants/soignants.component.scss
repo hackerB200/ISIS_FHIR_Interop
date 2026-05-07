@@ -1,0 +1,123 @@
+// Ligne rôles
+.roles-row td { background: var(--gs-surface); }
+
+.roles-panel {
+  padding: 14px 16px 16px;
+
+  &__title {
+    font-size: 11px;
+    font-weight: 500;
+    font-family: sans-serif;
+    color: var(--gs-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    margin-bottom: 10px;
+  }
+}
+
+.role-card {
+  background: var(--gs-white);
+  border: 0.5px solid var(--gs-border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+
+  &__org    { font-weight: 500; font-size: 13px; font-family: sans-serif; color: var(--gs-text); }
+  &__detail { font-size: 11px; color: var(--gs-muted); font-family: sans-serif; margin-top: 2px; }
+}
+
+// Badge rôle cliquable
+.role-badge {
+  cursor: pointer;
+  transition: opacity 0.15s, transform 0.1s;
+  user-select: none;
+
+  &:hover  { opacity: 0.8; }
+  &:active { transform: scale(0.96); }
+}
+
+// Bouton supprimer
+.icon-btn--danger {
+  &:hover {
+    background: var(--gs-red-bg);
+    color: var(--gs-red);
+  }
+}
+
+// Empty state
+.gs-empty {
+  text-align: center;
+  padding: 40px;
+  color: var(--gs-muted);
+  font-family: sans-serif;
+  font-size: 13px;
+}
+
+// MODAL
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(13, 27, 42, 0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal-box {
+  background: var(--gs-white);
+  border-radius: 12px;
+  padding: 24px;
+  width: 420px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  animation: slideUp 0.15s ease;
+
+  &__title {
+    font-size: 16px;
+    font-weight: 500;
+    font-family: sans-serif;
+    color: var(--gs-text);
+    margin-bottom: 12px;
+  }
+
+  &__body {
+    font-size: 13.5px;
+    font-family: sans-serif;
+    color: var(--gs-text);
+    line-height: 1.7;
+    margin-bottom: 20px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(10px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.btn-gs-danger {
+  background: var(--gs-red);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 7px 14px;
+  font-size: 13px;
+  font-family: sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.15s;
+
+  &:hover { background: #c43b3a; }
+  i { font-size: 14px; }
+}

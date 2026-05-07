@@ -1,0 +1,10 @@
+.rpps-search-label {
+  font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px;
+  color: var(--gs-muted); font-family: sans-serif; margin-bottom: 10px;
+}
+.week-label {
+  font-size: 12px; font-family: sans-serif; padding: 4px 10px;
+  background: var(--gs-white); border: 0.5px solid var(--gs-border); border-radius: 8px;
+}
+.spin { animation: spin 1s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }

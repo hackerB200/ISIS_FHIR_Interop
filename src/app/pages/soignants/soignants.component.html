@@ -1,0 +1,178 @@
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="topbar__title">Soignants <span>/ Liste</span></div>
+  <div class="gs-search" style="width:220px;">
+    <i class="bi bi-search"></i>
+    <input [(ngModel)]="searchQuery" placeholder="Nom, RPPS..." (ngModelChange)="onSearch()" />
+  </div>
+  <button class="btn-gs-ghost"><i class="bi bi-funnel"></i> Filtres</button>
+  <a routerLink="/recrutement" class="btn-gs-primary">
+    <i class="bi bi-person-plus"></i> Recruter
+  </a>
+</div>
+
+<div class="page-content">
+
+  <!-- STATS -->
+  <div class="row g-3 mb-3">
+    <div class="col-3">
+      <div class="stat-card">
+        <div class="stat-card__label">Soignants actifs</div>
+        <div class="stat-card__value">{{ stats().active }}</div>
+        <div class="stat-card__sub stat-card__sub--up">↑ 3 ce mois</div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="stat-card">
+        <div class="stat-card__label">Rôles assignés</div>
+        <div class="stat-card__value">{{ stats().roles }}</div>
+        <div class="stat-card__sub stat-card__sub--up">↑ 5 ce mois</div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="stat-card">
+        <div class="stat-card__label">Multi-rôles</div>
+        <div class="stat-card__value">{{ stats().multiRole }}</div>
+        <div class="stat-card__sub stat-card__sub--up">Soignants</div>
+      </div>
+    </div>
+    <div class="col-3">
+      <div class="stat-card">
+        <div class="stat-card__label">Inactifs</div>
+        <div class="stat-card__value">{{ stats().inactive }}</div>
+        <div class="stat-card__sub stat-card__sub--warn">À revoir</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="gs-card">
+    <div class="gs-card__header">
+      <span class="gs-card__header-title">Liste des soignants</span>
+      <span style="font-size:11px;color:var(--gs-muted);font-family:sans-serif;">
+        {{ filtered().length }} résultat(s)
+      </span>
+    </div>
+    <table class="gs-table">
+      <thead>
+        <tr>
+          <th>Soignant</th>
+          <th>RPPS</th>
+          <th>Rôles</th>
+          <th>Statut</th>
+          <th style="width:80px;"></th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (p of filtered(); track p.id) {
+
+          <!-- LIGNE SOIGNANT -->
+          <tr>
+            <td>
+              <div class="d-flex align-items-center gap-2">
+                <div class="gs-avatar gs-avatar--sm gs-avatar--{{ p.avatarColor }}">
+                  {{ p.firstName[0] }}{{ p.lastName[0] }}
+                </div>
+                <div>
+                  <div style="font-weight:500;">{{ p.prefix }} {{ p.firstName }} {{ p.lastName }}</div>
+                  <div style="font-size:11px;color:var(--gs-muted);font-family:sans-serif;">{{ p.specialty }}</div>
+                </div>
+              </div>
+            </td>
+            <td><span class="rpps-code">{{ p.rpps }}</span></td>
+            <td>
+              <!-- ✅ SEULEMENT le badge est cliquable -->
+              <span
+                class="gs-badge role-badge"
+                [class.gs-badge--multi]="(p.roles?.length ?? 0) > 1"
+                [class.gs-badge--role]="(p.roles?.length ?? 0) <= 1"
+                (click)="toggleRoles(p.id!)"
+              >
+                <i class="bi bi-briefcase" style="font-size:10px;"></i>
+                {{ p.roles?.length ?? 0 }} rôle(s)
+              </span>
+            </td>
+            <td>
+              <span class="gs-badge" [class]="p.active ? 'gs-badge--active' : 'gs-badge--inactive'">
+                ● {{ p.active ? 'Actif' : 'Inactif' }}
+              </span>
+            </td>
+            <td>
+              <!-- ✅ Éditer + Supprimer (pas d'icône calendrier) -->
+              <div class="d-flex gap-1">
+                <a [routerLink]="['/recrutement', p.id]" class="icon-btn" title="Modifier">
+                  <i class="bi bi-pencil"></i>
+                </a>
+                <button class="icon-btn icon-btn--danger" title="Supprimer" (click)="askDelete(p)">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+            </td>
+          </tr>
+
+          <!-- LIGNE ROLES (s'affiche sous la ligne du soignant sélectionné) -->
+          @if (selectedId() === p.id) {
+            <tr class="roles-row">
+              <td colspan="5" style="padding:0;">
+                <div class="roles-panel">
+                  <div class="roles-panel__title">
+                    <i class="bi bi-briefcase me-1"></i>
+                    Rôles — {{ p.prefix }} {{ p.firstName }} {{ p.lastName }}
+                  </div>
+                  <div class="row g-2">
+                    @for (role of p.roles; track role.id) {
+                      <div class="col-md-6 col-lg-4">
+                        <div class="role-card">
+                          <div class="role-card__org">{{ role.organization }}</div>
+                          <div class="role-card__detail">{{ role.specialty }}</div>
+                          <div class="role-card__detail">
+                            {{ role.availableDays.join(', ') }} · {{ role.startTime }} – {{ role.endTime }}
+                          </div>
+                          <span class="gs-badge mt-2"
+                            [class]="role.active ? 'gs-badge--active' : 'gs-badge--inactive'">
+                            ● {{ role.active ? 'Actif' : 'Inactif' }}
+                          </span>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                </div>
+              </td>
+            </tr>
+          }
+
+        }
+        @empty {
+          <tr>
+            <td colspan="5" class="gs-empty">Aucun soignant trouvé</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+<!-- ✅ MODAL SUPPRESSION -->
+@if (toDelete()) {
+  <div class="modal-backdrop" (click)="cancelDelete()">
+    <div class="modal-box" (click)="$event.stopPropagation()">
+      <div class="modal-box__title">
+        <i class="bi bi-exclamation-triangle text-danger me-2"></i>
+        Supprimer le soignant
+      </div>
+      <div class="modal-box__body">
+        Êtes-vous sûr de vouloir supprimer
+        <strong>{{ toDelete()!.prefix }} {{ toDelete()!.firstName }} {{ toDelete()!.lastName }}</strong> ?
+        <br>
+        <span style="font-size:12px;color:var(--gs-red);">Cette action est irréversible.</span>
+      </div>
+      <div class="modal-box__actions">
+        <button class="btn-gs-ghost" (click)="cancelDelete()">Annuler</button>
+        <button class="btn-gs-danger" (click)="confirmDelete()">
+          <i class="bi bi-trash"></i> Supprimer
+        </button>
+      </div>
+    </div>
+  </div>
+}
