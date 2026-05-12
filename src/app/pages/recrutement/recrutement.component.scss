@@ -1,0 +1,40 @@
+.qual-row {
+  &__sep {
+    border-top: 0.5px dashed var(--gs-border);
+    margin-bottom: 12px;
+  }
+}
+
+.lang-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.lang-chip {
+  cursor: pointer;
+  font-family: sans-serif;
+  font-size: 13px;
+  color: var(--gs-text);
+  background: var(--gs-surface);
+  border: 0.5px solid var(--gs-border);
+  border-radius: 20px;
+  padding: 6px 16px;
+  transition: border-color 0.15s, background 0.15s, color 0.15s;
+
+  &--selected {
+    background: var(--gs-teal-light);
+    border-color: var(--gs-teal);
+    color: var(--gs-teal-mid);
+    font-weight: 500;
+  }
+
+  &:hover:not(&--selected) {
+    border-color: var(--gs-teal);
+    background: var(--gs-surface);
+  }
+}
+
+.icon-btn--danger {
+  &:hover { background: var(--gs-red-bg); color: var(--gs-red); }
+}

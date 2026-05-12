@@ -1,15 +1,55 @@
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar__title">Soignants <span>/ Liste</span></div>
-  <div class="gs-search" style="width:220px;">
+  <div class="gs-search" style="width:240px;">
     <i class="bi bi-search"></i>
-    <input [(ngModel)]="searchQuery" placeholder="Nom, RPPS..." (ngModelChange)="onSearch()" />
+    <input [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+      placeholder="Nom, RPPS, spécialité..." />
   </div>
-  <button class="btn-gs-ghost"><i class="bi bi-funnel"></i> Filtres</button>
+  <button class="btn-gs-ghost" (click)="showFilters.set(!showFilters())">
+    <i class="bi bi-funnel"></i> Filtres
+    @if (activeFiltersCount() > 0) {
+      <span class="filter-badge">{{ activeFiltersCount() }}</span>
+    }
+  </button>
   <a routerLink="/recrutement" class="btn-gs-primary">
     <i class="bi bi-person-plus"></i> Recruter
   </a>
 </div>
+
+<!-- PANNEAU FILTRES -->
+@if (showFilters()) {
+  <div class="filters-bar">
+    <div class="filters-bar__inner">
+      <div class="filter-group">
+        <label class="filter-label">Statut</label>
+        <div class="filter-pills">
+          <button class="filter-pill" [class.filter-pill--active]="filterStatut() === 'tous'"
+            (click)="filterStatut.set('tous')">Tous</button>
+          <button class="filter-pill" [class.filter-pill--active]="filterStatut() === 'actif'"
+            (click)="filterStatut.set('actif')">● Actif</button>
+          <button class="filter-pill" [class.filter-pill--active]="filterStatut() === 'inactif'"
+            (click)="filterStatut.set('inactif')">● Inactif</button>
+        </div>
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Spécialité / Qualification</label>
+        <select class="gs-form__input gs-form__select filter-select"
+          [ngModel]="filterSpec()" (ngModelChange)="filterSpec.set($event)">
+          <option value="">Toutes</option>
+          @for (sp of specialties; track sp.code) {
+            <option [value]="sp.display.toLowerCase()">{{ sp.display }}</option>
+          }
+        </select>
+      </div>
+      @if (activeFiltersCount() > 0) {
+        <button class="btn-gs-ghost" style="font-size:12px;" (click)="resetFilters()">
+          <i class="bi bi-x-circle"></i> Réinitialiser
+        </button>
+      }
+    </div>
+  </div>
+}
 
 <div class="page-content">
 
@@ -19,21 +59,18 @@
       <div class="stat-card">
         <div class="stat-card__label">Soignants actifs</div>
         <div class="stat-card__value">{{ stats().active }}</div>
-        <div class="stat-card__sub stat-card__sub--up">↑ 3 ce mois</div>
       </div>
     </div>
     <div class="col-3">
       <div class="stat-card">
         <div class="stat-card__label">Rôles assignés</div>
         <div class="stat-card__value">{{ stats().roles }}</div>
-        <div class="stat-card__sub stat-card__sub--up">↑ 5 ce mois</div>
       </div>
     </div>
     <div class="col-3">
       <div class="stat-card">
         <div class="stat-card__label">Multi-rôles</div>
         <div class="stat-card__value">{{ stats().multiRole }}</div>
-        <div class="stat-card__sub stat-card__sub--up">Soignants</div>
       </div>
     </div>
     <div class="col-3">
@@ -60,13 +97,11 @@
           <th>RPPS</th>
           <th>Rôles</th>
           <th>Statut</th>
-          <th style="width:80px;"></th>
+          <th style="width:120px;"></th>
         </tr>
       </thead>
       <tbody>
         @for (p of filtered(); track p.id) {
-
-          <!-- LIGNE SOIGNANT -->
           <tr>
             <td>
               <div class="d-flex align-items-center gap-2">
@@ -75,19 +110,18 @@
                 </div>
                 <div>
                   <div style="font-weight:500;">{{ p.prefix }} {{ p.firstName }} {{ p.lastName }}</div>
-                  <div style="font-size:11px;color:var(--gs-muted);font-family:sans-serif;">{{ p.specialty }}</div>
+                  <div style="font-size:11px;color:var(--gs-muted);font-family:sans-serif;">
+                    {{ p.qualifications?.[0]?.codeText ?? '' }}
+                  </div>
                 </div>
               </div>
             </td>
             <td><span class="rpps-code">{{ p.rpps }}</span></td>
             <td>
-              <!-- ✅ SEULEMENT le badge est cliquable -->
-              <span
-                class="gs-badge role-badge"
+              <span class="gs-badge role-badge"
                 [class.gs-badge--multi]="(p.roles?.length ?? 0) > 1"
                 [class.gs-badge--role]="(p.roles?.length ?? 0) <= 1"
-                (click)="toggleRoles(p.id!)"
-              >
+                (click)="toggleRoles(p.id!)">
                 <i class="bi bi-briefcase" style="font-size:10px;"></i>
                 {{ p.roles?.length ?? 0 }} rôle(s)
               </span>
@@ -98,8 +132,10 @@
               </span>
             </td>
             <td>
-              <!-- ✅ Éditer + Supprimer (pas d'icône calendrier) -->
               <div class="d-flex gap-1">
+                <button class="icon-btn" title="Ajouter un rôle" (click)="openRoleModal(p)">
+                  <i class="bi bi-briefcase-fill"></i>
+                </button>
                 <a [routerLink]="['/recrutement', p.id]" class="icon-btn" title="Modifier">
                   <i class="bi bi-pencil"></i>
                 </a>
@@ -110,7 +146,6 @@
             </td>
           </tr>
 
-          <!-- LIGNE ROLES (s'affiche sous la ligne du soignant sélectionné) -->
           @if (selectedId() === p.id) {
             <tr class="roles-row">
               <td colspan="5" style="padding:0;">
@@ -118,42 +153,139 @@
                   <div class="roles-panel__title">
                     <i class="bi bi-briefcase me-1"></i>
                     Rôles — {{ p.prefix }} {{ p.firstName }} {{ p.lastName }}
+                    <button class="btn-gs-ghost ms-2" style="padding:3px 10px;font-size:11px;"
+                      (click)="openRoleModal(p)">
+                      <i class="bi bi-plus-circle"></i> Ajouter un rôle
+                    </button>
                   </div>
-                  <div class="row g-2">
-                    @for (role of p.roles; track role.id) {
-                      <div class="col-md-6 col-lg-4">
-                        <div class="role-card">
-                          <div class="role-card__org">{{ role.organization }}</div>
-                          <div class="role-card__detail">{{ role.specialty }}</div>
-                          <div class="role-card__detail">
-                            {{ role.availableDays.join(', ') }} · {{ role.startTime }} – {{ role.endTime }}
+                  @if (!p.roles?.length) {
+                    <div class="roles-empty">
+                      <i class="bi bi-briefcase" style="font-size:22px;opacity:0.3;"></i>
+                      <span>Aucun rôle — cliquez sur « Ajouter un rôle »</span>
+                    </div>
+                  } @else {
+                    <div class="row g-2">
+                      @for (role of p.roles; track role.id) {
+                        <div class="col-md-6 col-lg-4">
+                          <div class="role-card">
+                            <div class="d-flex justify-content-between align-items-start">
+                              <div class="role-card__org">{{ role.organization }}</div>
+                              <button class="icon-btn icon-btn--danger icon-btn--xs"
+                                title="Supprimer ce rôle"
+                                (click)="deleteRole(p.id!, role.id!)">
+                                <i class="bi bi-trash"></i>
+                              </button>
+                            </div>
+                            <div class="role-card__spec">{{ role.specialty }}</div>
+                            <div class="role-card__detail">
+                              {{ role.availableDays.join(', ') }}
+                              @if (role.startTime) { · {{ role.startTime }} – {{ role.endTime }} }
+                            </div>
+                            <span class="gs-badge mt-2"
+                              [class]="role.active ? 'gs-badge--active' : 'gs-badge--inactive'">
+                              ● {{ role.active ? 'Actif' : 'Inactif' }}
+                            </span>
                           </div>
-                          <span class="gs-badge mt-2"
-                            [class]="role.active ? 'gs-badge--active' : 'gs-badge--inactive'">
-                            ● {{ role.active ? 'Actif' : 'Inactif' }}
-                          </span>
                         </div>
-                      </div>
-                    }
-                  </div>
+                      }
+                    </div>
+                  }
                 </div>
               </td>
             </tr>
           }
-
         }
         @empty {
-          <tr>
-            <td colspan="5" class="gs-empty">Aucun soignant trouvé</td>
-          </tr>
+          <tr><td colspan="5" class="gs-empty">Aucun soignant trouvé</td></tr>
         }
       </tbody>
     </table>
   </div>
-
 </div>
 
-<!-- ✅ MODAL SUPPRESSION -->
+<!-- MODAL RÔLE -->
+@if (roleTarget()) {
+  <div class="modal-backdrop" (click)="closeRoleModal()">
+    <div class="modal-box modal-box--lg" (click)="$event.stopPropagation()">
+      <div class="modal-box__title">
+        <i class="bi bi-briefcase-fill me-2"></i>
+        Nouveau rôle — {{ roleTarget()!.prefix }} {{ roleTarget()!.firstName }} {{ roleTarget()!.lastName }}
+      </div>
+      <div class="modal-box__body">
+        <form [formGroup]="roleForm">
+          <div class="mb-3">
+            <label class="gs-form__label">Organisation / Établissement *</label>
+            <input class="gs-form__input" formControlName="organization"
+              placeholder="ex : Grey Sloan Memorial Hospital — Paris"
+              [class.is-invalid]="roleForm.get('organization')?.invalid && roleForm.get('organization')?.touched" />
+            @if (roleForm.get('organization')?.invalid && roleForm.get('organization')?.touched) {
+              <div class="gs-form__error">Champ requis</div>
+            }
+          </div>
+          <div class="row g-3 mb-3">
+            <div class="col-6">
+              <label class="gs-form__label">Date de début *</label>
+              <input class="gs-form__input" formControlName="periodStart" type="date"
+                [class.is-invalid]="roleForm.get('periodStart')?.invalid && roleForm.get('periodStart')?.touched" />
+            </div>
+            <div class="col-6">
+              <label class="gs-form__label">Statut</label>
+              <select class="gs-form__input gs-form__select" formControlName="active">
+                <option [ngValue]="true">● Actif</option>
+                <option [ngValue]="false">● Inactif</option>
+              </select>
+            </div>
+          </div>
+          <div class="mb-3">
+            <label class="gs-form__label">Profession (TRE-G15)</label>
+            <div class="gs-form__input gs-form__input--readonly">Médecin — code 10</div>
+          </div>
+          <div class="mb-3">
+            <label class="gs-form__label">Spécialité ordinale (TRE-R38) *</label>
+            <select class="gs-form__input gs-form__select" formControlName="specialtyCode"
+              [class.is-invalid]="roleForm.get('specialtyCode')?.invalid && roleForm.get('specialtyCode')?.touched">
+              <option value="">— Sélectionner —</option>
+              @for (sp of specialties; track sp.code) {
+                <option [value]="sp.code">{{ sp.display }} ({{ sp.code }})</option>
+              }
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="gs-form__label">Jours disponibles</label>
+            <div class="days-grid">
+              @for (d of days; track d.key) {
+                <label class="day-check">
+                  <input type="checkbox" [formControlName]="d.key" />
+                  <span>{{ d.label }}</span>
+                </label>
+              }
+            </div>
+          </div>
+          <div class="row g-3">
+            <div class="col-6">
+              <label class="gs-form__label">Heure de début *</label>
+              <input class="gs-form__input" formControlName="startTime" type="time" />
+            </div>
+            <div class="col-6">
+              <label class="gs-form__label">Heure de fin *</label>
+              <input class="gs-form__input" formControlName="endTime" type="time" />
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-box__actions">
+        <button class="btn-gs-ghost" (click)="closeRoleModal()">Annuler</button>
+        <button class="btn-gs-primary" (click)="submitRole()"
+          [disabled]="roleForm.invalid || roleSaving()">
+          <i class="bi bi-briefcase-fill"></i>
+          {{ roleSaving() ? 'Création...' : 'Créer le rôle' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- MODAL SUPPRESSION -->
 @if (toDelete()) {
   <div class="modal-backdrop" (click)="cancelDelete()">
     <div class="modal-box" (click)="$event.stopPropagation()">
@@ -164,8 +296,7 @@
       <div class="modal-box__body">
         Êtes-vous sûr de vouloir supprimer
         <strong>{{ toDelete()!.prefix }} {{ toDelete()!.firstName }} {{ toDelete()!.lastName }}</strong> ?
-        <br>
-        <span style="font-size:12px;color:var(--gs-red);">Cette action est irréversible.</span>
+        <br><span style="font-size:12px;color:var(--gs-red);">Cette action est irréversible.</span>
       </div>
       <div class="modal-box__actions">
         <button class="btn-gs-ghost" (click)="cancelDelete()">Annuler</button>

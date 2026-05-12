@@ -35,7 +35,7 @@
             {{ practitioner()!.prefix }} {{ practitioner()!.firstName }} {{ practitioner()!.lastName }}
           </div>
           <div style="font-size:11px;color:var(--gs-muted);font-family:sans-serif;margin-top:2px;">
-            {{ practitioner()!.specialty }} · {{ orgList() }}
+            {{ practitioner()!.qualifications?.[0]?.codeText ?? '' }} · {{ orgList() }}
           </div>
         </div>
         <span class="rpps-code" style="font-size:13px;padding:4px 10px;">{{ practitioner()!.rpps }}</span>

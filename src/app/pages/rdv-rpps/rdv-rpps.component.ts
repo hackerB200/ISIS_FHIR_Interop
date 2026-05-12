@@ -3,9 +3,6 @@ import { FormsModule } from '@angular/forms';
 import { PractitionerService } from '../../core/services/practitioner.service';
 import { Practitioner, Appointment } from '../../core/models/practitioner.model';
 
-const DATE_LABELS: Record<string, string> = {
-  '2026-05-07': 'Lundi 07 mai', '2026-05-09': 'Mercredi 09 mai', '2026-05-11': 'Vendredi 11 mai'
-};
 
 @Component({
   selector: 'app-rdv-rpps',
@@ -32,11 +29,21 @@ export class RdvRppsComponent {
     if (!rpps) return;
     this.searched.set(true);
     this.loading.set(true);
-    this.practitioner.set(this.svc.getByRpps(rpps) ?? null);
-    this.svc.getAppointmentsByRpps(rpps).subscribe({
-      next: appts => { this.appointments.set(appts); this.loading.set(false); },
-      error: ()   => this.loading.set(false)
-    });
+
+    // Utiliser l'ID local (déjà chargé) pour éviter une requête HTTP supplémentaire
+    const localP = this.svc.getByRpps(rpps);
+    this.practitioner.set(localP ?? null);
+
+    if (localP?.id) {
+      this.svc.getAppointmentsByPractitionerId(localP.id).subscribe({
+        next: appts => { this.appointments.set(appts); this.loading.set(false); },
+        error: ()   => this.loading.set(false)
+      });
+    } else {
+      // Praticien pas encore chargé localement — charger d'abord la liste
+      this.svc.loadAll();
+      this.loading.set(false);
+    }
   }
 
   reset(): void {
@@ -46,7 +53,10 @@ export class RdvRppsComponent {
     this.appointments.set([]);
   }
 
-  dateLabel(date: string)  { return DATE_LABELS[date] ?? date; }
+  dateLabel(date: string): string {
+    const d = new Date(date + 'T12:00:00'); // midi pour éviter les décalages DST
+    return d.toLocaleDateString('fr-FR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+  }
   statusLabel(s: string)   { return ({ confirmed: 'Confirmé', pending: 'En attente', cancelled: 'Annulé' } as any)[s] ?? s; }
   dotClass(s: string)      { return `rdv-card__dot--${s === 'confirmed' ? 'confirmed' : s === 'pending' ? 'pending' : 'cancelled'}`; }
   badgeClass(s: string)    { return s === 'confirmed' ? 'gs-badge--active' : s === 'pending' ? 'gs-badge--pending' : 'gs-badge--inactive'; }

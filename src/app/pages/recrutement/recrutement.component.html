@@ -72,7 +72,7 @@
           </div>
         </div>
 
-        <!-- CONTACT -->
+        <!-- COORDONNÉES -->
         <div class="gs-card mb-3">
           <div class="gs-card__header">
             <span class="gs-card__header-title"><i class="bi bi-telephone me-2"></i>Coordonnées</span>
@@ -81,50 +81,132 @@
             <div class="row g-3">
               <div class="col-6">
                 <label class="gs-form__label">Téléphone</label>
-                <input class="gs-form__input" formControlName="phone" placeholder="+33..." />
+                <input class="gs-form__input" formControlName="phone" placeholder="+33 1 23 45 67 89" />
               </div>
               <div class="col-6">
                 <label class="gs-form__label">Email</label>
                 <input class="gs-form__input" formControlName="email" type="email"
-                  placeholder="prenom.nom@..." />
+                  placeholder="prenom.nom@grey-sloan.fr" />
               </div>
             </div>
           </div>
         </div>
 
-        <!-- SPÉCIALITÉ -->
+        <!-- ADRESSE PROFESSIONNELLE -->
         <div class="gs-card mb-3">
           <div class="gs-card__header">
-            <span class="gs-card__header-title"><i class="bi bi-briefcase me-2"></i>Spécialité (TRE-R38)</span>
+            <span class="gs-card__header-title"><i class="bi bi-geo-alt me-2"></i>Adresse professionnelle</span>
           </div>
           <div class="gs-card__body">
+            <div class="mb-3">
+              <label class="gs-form__label">Rue</label>
+              <input class="gs-form__input" formControlName="addressLine"
+                placeholder="ex. 1 Rue du Grey Sloan Memorial" />
+            </div>
             <div class="row g-3">
-              <div class="col-8">
-                <label class="gs-form__label">Spécialité *</label>
-                <select class="gs-form__input gs-form__select" formControlName="specialty"
-                  [class.is-invalid]="isInvalid('specialty')">
-                  <option value="">— Sélectionner —</option>
-                  <option value="Médecine générale">Médecine générale (SM26)</option>
-                  <option value="Chirurgie générale">Chirurgie générale (SM54)</option>
-                  <option value="Cardiologie">Cardiologie (SM04)</option>
-                  <option value="Chirurgie pédiatrique">Chirurgie infantile (SM44)</option>
-                  <option value="Chirurgie cardiaque">Chirurgie cardiaque (SM03)</option>
-                </select>
-                @if (isInvalid('specialty')) { <div class="gs-form__error">Champ requis</div> }
+              <div class="col-3">
+                <label class="gs-form__label">Code postal</label>
+                <input class="gs-form__input" formControlName="addressPostalCode" placeholder="75015" />
+              </div>
+              <div class="col-5">
+                <label class="gs-form__label">Ville</label>
+                <input class="gs-form__input" formControlName="addressCity" placeholder="Paris" />
               </div>
               <div class="col-4">
-                <label class="gs-form__label">Statut</label>
-                <select class="gs-form__input gs-form__select" formControlName="active">
-                  <option [ngValue]="true">Actif</option>
-                  <option [ngValue]="false">Inactif</option>
-                </select>
+                <label class="gs-form__label">Pays (ISO)</label>
+                <input class="gs-form__input" formControlName="addressCountry" placeholder="FR" />
               </div>
             </div>
           </div>
         </div>
 
+        <!-- QUALIFICATIONS -->
+        <div class="gs-card mb-3">
+          <div class="gs-card__header">
+            <span class="gs-card__header-title"><i class="bi bi-mortarboard me-2"></i>Qualification(s)</span>
+            <button type="button" class="btn-gs-ghost btn-add-qual" (click)="addQualification()">
+              <i class="bi bi-plus-circle"></i> Ajouter
+            </button>
+          </div>
+          <div class="gs-card__body">
+            @for (group of qualGroups.controls; track $index) {
+              @if ($index > 0) { <hr class="qual-divider" /> }
+              <div [formGroup]="$any(group)">
+                <div class="row g-3 align-items-end">
+                  <div class="col-5">
+                    <label class="gs-form__label">Intitulé *</label>
+                    <input class="gs-form__input" formControlName="codeText"
+                      placeholder="ex. Chirurgie Générale"
+                      [class.is-invalid]="group.get('codeText')?.invalid && group.get('codeText')?.touched" />
+                    @if (group.get('codeText')?.invalid && group.get('codeText')?.touched) {
+                      <div class="gs-form__error">Champ requis</div>
+                    }
+                  </div>
+                  <div class="col-3">
+                    <label class="gs-form__label">Obtenu le</label>
+                    <input class="gs-form__input" formControlName="periodStart" type="date" />
+                  </div>
+                  <div class="col-3">
+                    <label class="gs-form__label">Établissement</label>
+                    <input class="gs-form__input" formControlName="issuer"
+                      placeholder="ex. Université Paris Cité" />
+                  </div>
+                  <div class="col-1 d-flex align-items-end pb-1">
+                    @if (qualGroups.length > 1) {
+                      <button type="button" class="icon-btn icon-btn--danger"
+                        (click)="removeQualification($index)" title="Supprimer">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- LANGUES -->
+        <div class="gs-card mb-3">
+          <div class="gs-card__header">
+            <span class="gs-card__header-title"><i class="bi bi-translate me-2"></i>Langues parlées</span>
+          </div>
+          <div class="gs-card__body">
+            <div class="lang-grid">
+              @for (lang of languages; track lang.code) {
+                <button type="button" class="lang-chip"
+                  [class.lang-chip--selected]="hasLanguage(lang.code)"
+                  (click)="toggleLanguage(lang.code)">
+                  {{ lang.label }}
+                </button>
+              }
+            </div>
+          </div>
+        </div>
+
+        <!-- STATUT -->
+        <div class="gs-card mb-3">
+          <div class="gs-card__header">
+            <span class="gs-card__header-title"><i class="bi bi-toggle-on me-2"></i>Statut</span>
+          </div>
+          <div class="gs-card__body">
+            <select class="gs-form__input gs-form__select" formControlName="active" style="max-width:200px;">
+              <option [ngValue]="true">Actif</option>
+              <option [ngValue]="false">Inactif</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- NOTE RÔLE -->
+        @if (!isEdit) {
+          <div class="role-note mb-3">
+            <i class="bi bi-info-circle me-2"></i>
+            Après avoir créé le soignant, vous pourrez lui affecter un ou plusieurs <strong>rôles</strong>
+            (spécialité, organisation, disponibilités) depuis la liste.
+          </div>
+        }
+
         <!-- ACTIONS -->
-        <div class="d-flex justify-content-end gap-2">
+        <div class="d-flex justify-content-end gap-2 mb-4">
           <a routerLink="/soignants" class="btn-gs-ghost">Annuler</a>
           <button type="submit" class="btn-gs-primary" [disabled]="form.invalid">
             <i class="bi" [class]="isEdit ? 'bi-check-circle' : 'bi-person-check'"></i>

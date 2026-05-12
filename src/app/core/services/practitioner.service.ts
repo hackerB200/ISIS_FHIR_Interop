@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
 import { Observable, tap } from 'rxjs';
-import { FhirService } from './fhir.service';
+import { FhirService, RoleFormData } from './fhir.service';
 import { Practitioner, Appointment } from '../models/practitioner.model';
 
 @Injectable({ providedIn: 'root' })
@@ -8,7 +8,6 @@ export class PractitionerService {
   private fhir = inject(FhirService);
 
   private _practitioners = signal<Practitioner[]>([]);
-
   readonly practitioners = this._practitioners.asReadonly();
 
   readonly stats = computed(() => {
@@ -23,7 +22,18 @@ export class PractitionerService {
   });
 
   loadAll(): void {
-    this.fhir.getPractitioners().subscribe(list => this._practitioners.set(list));
+    this.fhir.getPractitioners().subscribe(practitioners => {
+      this._practitioners.set(practitioners);
+      // Charger tous les rôles en une seule requête et les distribuer
+      this.fhir.getAllRoles().subscribe(allRoles => {
+        this._practitioners.update(list =>
+          list.map(p => ({
+            ...p,
+            roles: allRoles.filter(r => r.practitionerId === p.id)
+          }))
+        );
+      });
+    });
   }
 
   getByRpps(rpps: string): Practitioner | undefined {
@@ -54,8 +64,49 @@ export class PractitionerService {
     );
   }
 
+  // ---- Rôles (formulaire séparé) ----
+  deleteRole(practitionerId: string, roleId: string): Observable<void> {
+    return this.fhir.deletePractitionerRole(roleId).pipe(
+      tap(() => {
+        this._practitioners.update(list => list.map(p =>
+          p.id === practitionerId
+            ? { ...p, roles: p.roles?.filter(r => r.id !== roleId) }
+            : p
+        ));
+      })
+    );
+  }
+
+  createRole(practitionerId: string, role: RoleFormData): Observable<any> {
+    return this.fhir.createPractitionerRole(practitionerId, role).pipe(
+      tap(() => {
+        // Recharge les rôles du praticien dans le store local
+        this.fhir.getRolesByPractitioner(practitionerId).subscribe(roles => {
+          this._practitioners.update(list =>
+            list.map(p => p.id === practitionerId ? { ...p, roles } : p)
+          );
+        });
+      })
+    );
+  }
+
+  loadRolesFor(practitionerId: string): void {
+    this.fhir.getRolesByPractitioner(practitionerId).subscribe(roles => {
+      this._practitioners.update(list =>
+        list.map(p => p.id === practitionerId ? { ...p, roles } : p)
+      );
+    });
+  }
+
+  getAppointmentsByPractitionerId(practitionerId: string): Observable<Appointment[]> {
+    return this.fhir.getAppointmentsByPractitionerId(practitionerId);
+  }
+
   getAppointmentsByRpps(rpps: string): Observable<Appointment[]> {
-    return this.fhir.getAppointmentsByRpps(rpps);
+    // Méthode conservée pour compatibilité — utilise getByRpps + ID local
+    const p = this.getByRpps(rpps);
+    if (p?.id) return this.fhir.getAppointmentsByPractitionerId(p.id);
+    return new Observable(obs => obs.next([]));
   }
 
   groupByDate(appts: Appointment[]): Array<{ date: string; appts: Appointment[] }> {
