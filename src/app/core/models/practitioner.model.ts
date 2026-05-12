@@ -87,6 +87,7 @@ export interface FhirPractitioner {
 export interface FhirPractitionerRole {
   resourceType:   'PractitionerRole';
   id?:            string;
+  text?:          { status: string; div: string };
   active?:        boolean;
   period?:        { start?: string };
   practitioner?:  { reference: string; display?: string };

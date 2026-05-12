@@ -120,6 +120,10 @@ export class FhirService {
     const toTime = (t: string) => t.length === 5 ? `${t}:00` : t;
     const resource: FhirPractitionerRole = {
       resourceType: 'PractitionerRole',
+      text: {
+        status: 'generated',
+        div: `<div xmlns="http://www.w3.org/1999/xhtml">${role.specialtyDisplay} — ${role.organization}</div>`
+      },
       active:       role.active,
       ...(role.periodStart ? { period: { start: role.periodStart } } : {}),
       practitioner: { reference: `Practitioner/${practitionerId}` },
