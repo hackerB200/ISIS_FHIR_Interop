@@ -33,12 +33,18 @@ const LANG_DISPLAY: Record<string, string> = {
 };
 
 // Exporté pour être réutilisé dans les composants
-export const SPECIALTY_OPTIONS: Array<{ code: string; display: string }> = [
-  { code: 'SM26', display: 'Médecine générale' },
-  { code: 'SM54', display: 'Chirurgie générale' },
-  { code: 'SM04', display: 'Cardiologie' },
-  { code: 'SM44', display: 'Chirurgie infantile' },
-  { code: 'SM03', display: 'Chirurgie cardiaque' },
+// Spécialités TRE-R38 — codes et displays officiels ANS (source: TRE_R38-SpecialiteOrdinale-FHIR.json)
+export const SPECIALTY_OPTIONS: Array<{ code: string; display: string; label: string }> = [
+  { code: 'SM54', display: 'M\u00e9decine g\u00e9n\u00e9rale (SM)',                          label: 'M\u00e9decine g\u00e9n\u00e9rale (SM54)'                          },
+  { code: 'SM05', display: 'Chirurgie g\u00e9n\u00e9rale (SM)',                              label: 'Chirurgie g\u00e9n\u00e9rale (SM05)'                              },
+  { code: 'SM04', display: 'Cardiologie et Maladies vasculaires (SM)',                       label: 'Cardiologie et Maladies vasculaires (SM04)'                       },
+  { code: 'SM09', display: 'Chirurgie infantile (SM)',                                       label: 'Chirurgie infantile (SM09)'                                       },
+  { code: 'SM11', display: 'Chirurgie thoracique et cardio-vasculaire (SM)',                 label: 'Chirurgie thoracique et cardio-vasculaire (SM11)'                 },
+  { code: 'SM40', display: 'P\u00e9diatrie (SM)',                                            label: 'P\u00e9diatrie (SM40)'                                            },
+  { code: 'SM26', display: 'Qualifi\u00e9 en M\u00e9decine g\u00e9n\u00e9rale (SM)',        label: 'Qualifi\u00e9 en M\u00e9decine g\u00e9n\u00e9rale (SM26)'        },
+  { code: 'SM27', display: 'M\u00e9decine interne (SM)',                                     label: 'M\u00e9decine interne (SM27)'                                     },
+  { code: 'SM31', display: 'Neuro-chirurgie (SM)',                                           label: 'Neuro-chirurgie (SM31)'                                           },
+  { code: 'SM59', display: 'M\u00e9decine d\u2019urgence (SM)',                              label: 'M\u00e9decine d\u2019urgence (SM59)'                              },
 ];
 
 @Injectable({ providedIn: 'root' })

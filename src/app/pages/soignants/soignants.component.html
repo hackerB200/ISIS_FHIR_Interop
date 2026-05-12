@@ -38,7 +38,7 @@
           [ngModel]="filterSpec()" (ngModelChange)="filterSpec.set($event)">
           <option value="">Toutes</option>
           @for (sp of specialties; track sp.code) {
-            <option [value]="sp.display.toLowerCase()">{{ sp.display }}</option>
+            <option [value]="sp.display.toLowerCase()">{{ sp.label }}</option>
           }
         </select>
       </div>
@@ -246,7 +246,7 @@
               [class.is-invalid]="roleForm.get('specialtyCode')?.invalid && roleForm.get('specialtyCode')?.touched">
               <option value="">— Sélectionner —</option>
               @for (sp of specialties; track sp.code) {
-                <option [value]="sp.code">{{ sp.display }} ({{ sp.code }})</option>
+                <option [value]="sp.code">{{ sp.label }}</option>
               }
             </select>
           </div>
