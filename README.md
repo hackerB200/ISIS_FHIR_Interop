@@ -1,5 +1,7 @@
 # Grey Sloan RH — Application de gestion des soignants
 
+Auteur : Jean ESTADIEU - Erij AMEUR - Anissa DAOUD - Eva TUBIA
+
 Application web Angular interfacée avec un serveur **FHIR R4 (HAPI)** pour la gestion des ressources humaines d'un établissement de santé fictif inspiré de la série *Grey's Anatomy*.
 
 Développée dans le cadre du projet **ISIS FHIR Interop** — ISIS Ingénierie, 2025-2026.
