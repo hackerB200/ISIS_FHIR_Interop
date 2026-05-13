@@ -8,3 +8,20 @@
 }
 .spin { animation: spin 1s linear infinite; display: inline-block; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+.filters-bar {
+  background: var(--gs-card);
+  border-bottom: 0.5px solid var(--gs-border);
+  padding: 10px 24px;
+  &__inner { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+}
+.filter-group { display: flex; align-items: center; gap: 8px; }
+.filter-label { font-size: 11px; font-family: sans-serif; color: var(--gs-muted); white-space: nowrap; }
+
+.rdv-empty-week {
+  text-align: center;
+  padding: 40px 20px;
+  color: var(--gs-muted);
+  font-family: sans-serif;
+  font-size: 13px;
+}

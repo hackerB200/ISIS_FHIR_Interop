@@ -1,7 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
-
 // Validateur custom : au moins phone ou email requis (telecom 1..* dans l'IG)
 function atLeastOneTelecom(group: AbstractControl): ValidationErrors | null {
   const phone = group.get('phone')?.value?.trim();
@@ -36,6 +35,8 @@ export class RecrutementComponent implements OnInit {
   isEdit   = false;
   editId   = '';
   fullName = '';
+  saving   = signal(false);
+  toast    = signal<{ type: 'success'|'error'; msg: string } | null>(null);
 
   readonly languages = LANGUAGES;
   selectedLanguages = signal<string[]>(['fr']);
@@ -160,6 +161,20 @@ export class RecrutementComponent implements OnInit {
     };
 
     const action$ = this.isEdit ? this.svc.update(payload) : this.svc.create(payload);
-    action$.subscribe(() => this.router.navigate(['/soignants']));
+    this.saving.set(true);
+    action$.subscribe({
+      next: () => {
+        this.saving.set(false);
+        const msg = this.isEdit
+          ? `${payload.prefix} ${payload.firstName} ${payload.lastName} mis à jour avec succès.`
+          : `${payload.prefix} ${payload.firstName} ${payload.lastName} créé avec succès.`;
+        this.toast.set({ type: 'success', msg });
+        setTimeout(() => this.router.navigate(['/soignants']), 1800);
+      },
+      error: () => {
+        this.saving.set(false);
+        this.toast.set({ type: 'error', msg: 'Une erreur est survenue. Vérifiez le serveur FHIR.' });
+      }
+    });
   }
 }

@@ -1,7 +1,33 @@
 <div class="topbar">
   <div class="topbar__title">Rendez-vous <span>/ par RPPS</span></div>
-  <button class="btn-gs-ghost"><i class="bi bi-calendar-range"></i> Période</button>
+  <button class="btn-gs-ghost" (click)="showPeriod.set(!showPeriod())">
+    <i class="bi bi-calendar-range"></i> Période
+  </button>
 </div>
+
+<!-- PANNEAU PÉRIODE PERSONNALISÉE -->
+@if (showPeriod()) {
+  <div class="filters-bar">
+    <div class="filters-bar__inner">
+      <div class="filter-group">
+        <label class="filter-label">Du</label>
+        <input type="date" class="gs-form__input" style="width:160px;padding:4px 8px;font-size:12px;"
+          [ngModel]="periodStart()" (ngModelChange)="periodStart.set($event)" />
+      </div>
+      <div class="filter-group">
+        <label class="filter-label">Au</label>
+        <input type="date" class="gs-form__input" style="width:160px;padding:4px 8px;font-size:12px;"
+          [ngModel]="periodEnd()" (ngModelChange)="periodEnd.set($event)" />
+      </div>
+      <button class="btn-gs-primary" style="font-size:12px;padding:5px 14px;" (click)="applyPeriod()">
+        Appliquer
+      </button>
+      <button class="btn-gs-ghost" style="font-size:12px;" (click)="showPeriod.set(false)">
+        Annuler
+      </button>
+    </div>
+  </div>
+}
 
 <div class="page-content d-flex flex-column gap-3">
 
@@ -50,9 +76,13 @@
       <span style="font-size:14px;font-weight:500;font-family:sans-serif;">Rendez-vous</span>
       <span class="gs-badge gs-badge--multi">{{ totalAppts() }} cette semaine</span>
       <div class="ms-auto d-flex gap-2 align-items-center">
-        <button class="btn-gs-ghost" style="padding:4px 10px;"><i class="bi bi-chevron-left"></i></button>
-        <span class="week-label">07 – 13 mai 2026</span>
-        <button class="btn-gs-ghost" style="padding:4px 10px;"><i class="bi bi-chevron-right"></i></button>
+        <button class="btn-gs-ghost" style="padding:4px 10px;" (click)="prevWeek()">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <span class="week-label">{{ weekLabel() }}</span>
+        <button class="btn-gs-ghost" style="padding:4px 10px;" (click)="nextWeek()">
+          <i class="bi bi-chevron-right"></i>
+        </button>
       </div>
     </div>
 
@@ -75,6 +105,11 @@
             </div>
           }
         </div>
+      </div>
+    } @empty {
+      <div class="rdv-empty-week">
+        <i class="bi bi-calendar-x" style="font-size:28px;opacity:0.3;display:block;margin-bottom:8px;"></i>
+        Aucun rendez-vous sur la période <strong>{{ weekLabel() }}</strong>
       </div>
     }
   }

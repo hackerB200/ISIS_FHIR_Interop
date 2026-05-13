@@ -307,3 +307,19 @@
     </div>
   </div>
 }
+
+<!-- TOAST NOTIFICATION -->
+@if (toast()) {
+  <div class="toast-notif" [class.toast-notif--error]="toast()!.type === 'error'">
+    <div class="toast-notif__icon">
+      <i class="bi" [class]="toast()!.type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+    </div>
+    <div class="toast-notif__body">
+      <div class="toast-notif__title">{{ toast()!.title }}</div>
+      <div class="toast-notif__msg">{{ toast()!.msg }}</div>
+    </div>
+    <button class="toast-notif__close" (click)="toast.set(null)">
+      <i class="bi bi-x"></i>
+    </button>
+  </div>
+}

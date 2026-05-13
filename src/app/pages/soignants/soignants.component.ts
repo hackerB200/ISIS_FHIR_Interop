@@ -34,6 +34,16 @@ export class SoignantsComponent implements OnInit {
   readonly specialties = SPECIALTY_OPTIONS;
   readonly days        = DAYS;
 
+  // ── Toast ────────────────────────────────────────────────
+  toast = signal<{ type: 'success'|'error'; title: string; msg: string } | null>(null);
+  private toastTimer: any;
+
+  showToast(type: 'success'|'error', title: string, msg: string): void {
+    clearTimeout(this.toastTimer);
+    this.toast.set({ type, title, msg });
+    this.toastTimer = setTimeout(() => this.toast.set(null), 5000);
+  }
+
   // ── Modal rôle ──
   roleTarget = signal<Practitioner | null>(null);
   roleSaving = signal(false);
@@ -122,14 +132,29 @@ export class SoignantsComponent implements OnInit {
       endTime:          v.endTime!,
       active:           v.active ?? true
     }).subscribe({
-      next:  () => { this.roleSaving.set(false); this.closeRoleModal(); },
-      error: () => { this.roleSaving.set(false); }
+      next:  () => {
+        this.roleSaving.set(false);
+        this.closeRoleModal();
+        this.svc.loadAll();
+        this.showToast('success', 'Rôle créé', `Le rôle a été assigné à ${p.prefix} ${p.firstName} ${p.lastName}.`);
+      },
+      error: () => {
+        this.roleSaving.set(false);
+        this.showToast('error', 'Erreur', 'La création du rôle a échoué. Vérifiez le serveur FHIR.');
+      }
     });
   }
 
-  deleteRole(practitionerId: string, roleId: string): void {
+  deleteRole(practitionerId: string, roleId: string | undefined): void {
+    if (!roleId) {
+      this.showToast('error', 'ID introuvable', 'Supprimez ce rôle directement sur le serveur FHIR.');
+      return;
+    }
     if (!confirm('Supprimer ce rôle ?')) return;
-    this.svc.deleteRole(practitionerId, roleId).subscribe();
+    this.svc.deleteRole(practitionerId, roleId).subscribe({
+      next:  () => { this.svc.loadAll(); this.showToast('success', 'Rôle supprimé', 'Le rôle a été retiré avec succès.'); },
+      error: () => this.showToast('error', 'Erreur', 'La suppression du rôle a échoué.')
+    });
   }
 
   // ── Panneau rôles ──
@@ -144,9 +169,15 @@ export class SoignantsComponent implements OnInit {
   confirmDelete(): void {
     const p = this.toDelete();
     if (!p?.id) return;
-    this.svc.delete(p.id).subscribe(() => {
-      if (this.selectedId() === p.id) this.selectedId.set(null);
-      this.toDelete.set(null);
+    this.toDelete.set(null);
+    this.svc.delete(p.id).subscribe({
+      next: () => {
+        if (this.selectedId() === p.id) this.selectedId.set(null);
+        this.showToast('success', 'Soignant supprimé', `${p.prefix} ${p.firstName} ${p.lastName} a été supprimé.`);
+      },
+      error: (err: Error) => {
+        this.showToast('error', 'Suppression impossible', err.message ?? 'Une erreur est survenue.');
+      }
     });
   }
 }

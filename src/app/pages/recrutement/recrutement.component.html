@@ -216,9 +216,10 @@
         <!-- ACTIONS -->
         <div class="d-flex justify-content-end gap-2 mb-4">
           <a routerLink="/soignants" class="btn-gs-ghost">Annuler</a>
-          <button type="submit" class="btn-gs-primary" [disabled]="form.invalid">
-            <i class="bi" [class]="isEdit ? 'bi-check-circle' : 'bi-person-check'"></i>
-            {{ isEdit ? 'Enregistrer les modifications' : 'Créer le soignant' }}
+          <button type="submit" class="btn-gs-primary" [disabled]="form.invalid || saving()">
+            @if (saving()) { <i class="bi bi-arrow-repeat spin me-1"></i> }
+            @else { <i class="bi" [class]="isEdit ? 'bi-check-circle' : 'bi-person-check'" style="margin-right:6px;"></i> }
+            {{ saving() ? 'Enregistrement...' : (isEdit ? 'Enregistrer les modifications' : 'Créer le soignant') }}
           </button>
         </div>
 
@@ -226,3 +227,17 @@
     </div>
   </div>
 </div>
+
+<!-- TOAST -->
+@if (toast()) {
+  <div class="toast-notif" [class.toast-notif--error]="toast()!.type === 'error'">
+    <div class="toast-notif__icon">
+      <i class="bi" [class]="toast()!.type === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-triangle-fill'"></i>
+    </div>
+    <div class="toast-notif__body">
+      <div class="toast-notif__title">{{ toast()!.type === 'success' ? (isEdit ? 'Soignant modifié' : 'Soignant créé') : 'Erreur' }}</div>
+      <div class="toast-notif__msg">{{ toast()!.msg }}</div>
+    </div>
+    <button class="toast-notif__close" (click)="toast.set(null)"><i class="bi bi-x"></i></button>
+  </div>
+}

@@ -1,5 +1,5 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Observable, tap } from 'rxjs';
+import { Observable, tap, switchMap, forkJoin, of } from 'rxjs';
 import { FhirService, RoleFormData } from './fhir.service';
 import { Practitioner, Appointment } from '../models/practitioner.model';
 
@@ -59,8 +59,23 @@ export class PractitionerService {
   }
 
   delete(id: string): Observable<void> {
-    return this.fhir.deletePractitioner(id).pipe(
-      tap(() => this._practitioners.update(list => list.filter(p => p.id !== id)))
+    // Vérifier s'il a des RDV → bloquer la suppression
+    // Puis supprimer les PractitionerRoles → puis le Practitioner
+    return this.fhir.getAppointmentsByPractitionerId(id).pipe(
+      switchMap(appts => {
+        if (appts.length > 0) {
+          // Lancer une erreur métier lisible
+          throw new Error(`Ce praticien a encore ${appts.length} rendez-vous. Annulez-les avant de le supprimer.`);
+        }
+        return this.fhir.getRolesByPractitioner(id).pipe(
+          switchMap(roles => {
+            const ids = roles.map(r => r.id).filter((rid): rid is string => !!rid);
+            return ids.length ? forkJoin(ids.map(rid => this.fhir.deletePractitionerRole(rid))) : of([]);
+          })
+        );
+      }),
+      switchMap(() => this.fhir.deletePractitioner(id)),
+      tap(() => this._practitioners.update(list => list.filter(pr => pr.id !== id)))
     );
   }
 
