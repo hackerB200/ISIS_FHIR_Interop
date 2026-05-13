@@ -38,7 +38,7 @@
           [ngModel]="filterSpec()" (ngModelChange)="filterSpec.set($event)">
           <option value="">Toutes</option>
           @for (sp of specialties; track sp.code) {
-            <option [value]="sp.display.toLowerCase()">{{ sp.label }}</option>
+            <option [value]="sp.code">{{ sp.label }}</option>
           }
         </select>
       </div>
@@ -227,6 +227,9 @@
               <label class="gs-form__label">Date de début *</label>
               <input class="gs-form__input" formControlName="periodStart" type="date"
                 [class.is-invalid]="roleForm.get('periodStart')?.invalid && roleForm.get('periodStart')?.touched" />
+              @if (roleForm.get('periodStart')?.invalid && roleForm.get('periodStart')?.touched) {
+                <div class="gs-form__error">Champ requis</div>
+              }
             </div>
             <div class="col-6">
               <label class="gs-form__label">Statut</label>
@@ -249,6 +252,9 @@
                 <option [value]="sp.code">{{ sp.label }}</option>
               }
             </select>
+            @if (roleForm.get('specialtyCode')?.invalid && roleForm.get('specialtyCode')?.touched) {
+              <div class="gs-form__error">Champ requis</div>
+            }
           </div>
           <div class="mb-3">
             <label class="gs-form__label">Jours disponibles</label>
@@ -276,7 +282,7 @@
       <div class="modal-box__actions">
         <button class="btn-gs-ghost" (click)="closeRoleModal()">Annuler</button>
         <button class="btn-gs-primary" (click)="submitRole()"
-          [disabled]="roleForm.invalid || roleSaving()">
+          [disabled]="roleSaving()">
           <i class="bi bi-briefcase-fill"></i>
           {{ roleSaving() ? 'Création...' : 'Créer le rôle' }}
         </button>

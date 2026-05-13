@@ -81,7 +81,7 @@ export class SoignantsComponent implements OnInit {
         (stat === 'inactif' && !p.active);
 
       const matchSpec = !spec ||
-        (p.qualifications?.[0]?.codeText ?? '').toLowerCase().includes(spec);
+        (p.roles ?? []).some(r => r.specialtyCode === spec);
 
       return matchSearch && matchStatut && matchSpec;
     });
@@ -116,7 +116,16 @@ export class SoignantsComponent implements OnInit {
   }
 
   submitRole(): void {
-    if (this.roleForm.invalid) { this.roleForm.markAllAsTouched(); return; }
+    if (this.roleForm.invalid) {
+      this.roleForm.markAllAsTouched();
+      const errors: string[] = [];
+      if (this.roleForm.get('organization')?.invalid)  errors.push('Organisation');
+      if (this.roleForm.get('periodStart')?.invalid)   errors.push('Date de début');
+      if (this.roleForm.get('specialtyCode')?.invalid) errors.push('Spécialité');
+      if (this.getSelectedDays().length === 0)         errors.push('Jours disponibles');
+      this.showToast('error', 'Champs manquants', errors.join(' · '));
+      return;
+    }
     const p = this.roleTarget();
     if (!p?.id) return;
     const v  = this.roleForm.value;
