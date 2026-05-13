@@ -130,6 +130,20 @@ export class RecrutementComponent implements OnInit {
     if (this.form.invalid || this.qualificationsArray.invalid) {
       this.form.markAllAsTouched();
       this.qualificationsArray.markAllAsTouched();
+      // Construire un message précis des champs manquants
+      const errors: string[] = [];
+      if (this.form.get('rpps')?.invalid)      errors.push('Numéro RPPS');
+      if (this.form.get('firstName')?.invalid)  errors.push('Prénom');
+      if (this.form.get('lastName')?.invalid)   errors.push('Nom');
+      if (this.form.get('gender')?.invalid)     errors.push('Genre');
+      if (this.form.get('birthDate')?.invalid)  errors.push('Date de naissance');
+      if (this.form.get('email')?.invalid)      errors.push('Email (format invalide)');
+      if (this.form.hasError('telecemRequired')) errors.push('Téléphone ou Email (au moins un requis)');
+      if (this.qualificationsArray.invalid)     errors.push('Qualification (intitulé requis)');
+      this.toast.set({
+        type: 'error',
+        msg: `Champs invalides : ${errors.join(' · ')}`
+      });
       return;
     }
     const v = this.form.value;

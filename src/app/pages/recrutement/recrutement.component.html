@@ -88,7 +88,13 @@
                 <label class="gs-form__label">Email</label>
                 <input class="gs-form__input" formControlName="email" type="email"
                   placeholder="prenom.nom@grey-sloan.fr"
-                  [class.is-invalid]="form.hasError('telecemRequired') && form.touched" />
+                  [class.is-invalid]="(form.hasError('telecemRequired') && form.touched) || isInvalid('email')" />
+                @if (isInvalid('email') && form.get('email')?.hasError('email')) {
+                  <div class="gs-form__error">
+                    <i class="bi bi-exclamation-circle me-1"></i>
+                    Adresse email invalide.
+                  </div>
+                }
               </div>
             </div>
             @if (form.hasError('telecemRequired') && form.touched) {
@@ -216,7 +222,7 @@
         <!-- ACTIONS -->
         <div class="d-flex justify-content-end gap-2 mb-4">
           <a routerLink="/soignants" class="btn-gs-ghost">Annuler</a>
-          <button type="submit" class="btn-gs-primary" [disabled]="form.invalid || saving()">
+          <button type="submit" class="btn-gs-primary" [disabled]="saving()">
             @if (saving()) { <i class="bi bi-arrow-repeat spin me-1"></i> }
             @else { <i class="bi" [class]="isEdit ? 'bi-check-circle' : 'bi-person-check'" style="margin-right:6px;"></i> }
             {{ saving() ? 'Enregistrement...' : (isEdit ? 'Enregistrer les modifications' : 'Créer le soignant') }}
