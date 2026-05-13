@@ -242,6 +242,10 @@ export class FhirService {
     return {
       resourceType: 'Practitioner',
       ...(p.id ? { id: p.id } : {}),
+      text: {
+        status: 'generated',
+        div: `<div xmlns="http://www.w3.org/1999/xhtml">${p.prefix} ${p.firstName} ${p.lastName} — RPPS: ${p.rpps}</div>`
+      },
       active:     p.active,
       identifier: [{ system: RPPS_SYSTEM, use: 'official', value: p.rpps }],
       name:       [{ use: 'official', prefix: [p.prefix], family: p.lastName, given: [p.firstName] }],

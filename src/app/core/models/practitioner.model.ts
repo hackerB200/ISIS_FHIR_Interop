@@ -69,6 +69,7 @@ export interface FhirBundle<T> {
 export interface FhirPractitioner {
   resourceType:   'Practitioner';
   id?:            string;
+  text?:          { status: string; div: string };
   active?:        boolean;
   identifier?:    Array<{ system: string; value: string; use?: string }>;
   name?:          Array<{ use?: string; family?: string; given?: string[]; prefix?: string[] }>;

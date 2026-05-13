@@ -75,20 +75,28 @@
         <!-- COORDONNÉES -->
         <div class="gs-card mb-3">
           <div class="gs-card__header">
-            <span class="gs-card__header-title"><i class="bi bi-telephone me-2"></i>Coordonnées</span>
+            <span class="gs-card__header-title"><i class="bi bi-telephone me-2"></i>Coordonnées <span style="font-size:11px;color:var(--gs-muted);">(au moins un requis)</span></span>
           </div>
           <div class="gs-card__body">
             <div class="row g-3">
               <div class="col-6">
                 <label class="gs-form__label">Téléphone</label>
-                <input class="gs-form__input" formControlName="phone" placeholder="+33 1 23 45 67 89" />
+                <input class="gs-form__input" formControlName="phone" placeholder="+33 1 23 45 67 89"
+                  [class.is-invalid]="form.hasError('telecemRequired') && form.touched" />
               </div>
               <div class="col-6">
                 <label class="gs-form__label">Email</label>
                 <input class="gs-form__input" formControlName="email" type="email"
-                  placeholder="prenom.nom@grey-sloan.fr" />
+                  placeholder="prenom.nom@grey-sloan.fr"
+                  [class.is-invalid]="form.hasError('telecemRequired') && form.touched" />
               </div>
             </div>
+            @if (form.hasError('telecemRequired') && form.touched) {
+              <div class="gs-form__error mt-2">
+                <i class="bi bi-exclamation-circle me-1"></i>
+                Au moins un moyen de contact (téléphone ou email) est requis.
+              </div>
+            }
           </div>
         </div>
 

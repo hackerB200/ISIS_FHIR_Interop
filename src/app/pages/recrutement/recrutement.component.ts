@@ -1,6 +1,13 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
-import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators } from '@angular/forms';
+import { ReactiveFormsModule, FormBuilder, FormArray, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+
+// Validateur custom : au moins phone ou email requis (telecom 1..* dans l'IG)
+function atLeastOneTelecom(group: AbstractControl): ValidationErrors | null {
+  const phone = group.get('phone')?.value?.trim();
+  const email = group.get('email')?.value?.trim();
+  return (phone || email) ? null : { telecemRequired: true };
+}
 import { PractitionerService } from '../../core/services/practitioner.service';
 import { Practitioner } from '../../core/models/practitioner.model';
 
@@ -48,7 +55,7 @@ export class RecrutementComponent implements OnInit {
     addressPostalCode: [''],
     addressCountry:    ['FR'],
     active:            [true]
-  });
+  }, { validators: atLeastOneTelecom });
 
   // Liste dynamique de qualifications
   qualificationsArray = this.fb.array([this.newQualGroup()]);
