@@ -41,6 +41,8 @@ body {
   display: flex;
   flex-direction: column;
   height: 100vh;
+  position: relative;
+  padding-bottom: 56px;
 
   &__logo {
     padding: 20px 16px 16px;
@@ -91,7 +93,8 @@ body {
 // Fix scroll : les hôtes de composants Angular doivent remplir le flex container
 app-soignants,
 app-recrutement,
-app-rdv-rpps {
+app-rdv-rpps,
+app-role {
   display: flex;
   flex-direction: column;
   flex: 1;
