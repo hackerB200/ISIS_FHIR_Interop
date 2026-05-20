@@ -120,6 +120,9 @@ export class FhirService {
     const toTime = (t: string) => t.length === 5 ? `${t}:00` : t;
     const resource: FhirPractitionerRole = {
       resourceType: 'PractitionerRole',
+      meta: {
+        profile: ['http://isis.fr/StructureDefinition/SoignantRole']
+      },
       text: {
         status: 'generated',
         div: `<div xmlns="http://www.w3.org/1999/xhtml">${role.specialtyDisplay} — ${role.organization}</div>`
@@ -142,6 +145,10 @@ export class FhirService {
   // -------------------------------------------------------
   // APPOINTMENT
   // -------------------------------------------------------
+  deleteAppointment(appointmentId: string): Observable<void> {
+    return this.http.delete<void>(`${this.base}/Appointment/${appointmentId}`, { headers: this.headers });
+  }
+
   getAppointmentsByPractitionerId(practitionerId: string): Observable<Appointment[]> {
     return this.http
       .get<FhirBundle<FhirAppointment>>(
@@ -242,6 +249,9 @@ export class FhirService {
     return {
       resourceType: 'Practitioner',
       ...(p.id ? { id: p.id } : {}),
+      meta: {
+        profile: ['http://isis.fr/StructureDefinition/Soignant']
+      },
       text: {
         status: 'generated',
         div: `<div xmlns="http://www.w3.org/1999/xhtml">${p.prefix} ${p.firstName} ${p.lastName} — RPPS: ${p.rpps}</div>`

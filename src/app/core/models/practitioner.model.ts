@@ -69,6 +69,7 @@ export interface FhirBundle<T> {
 export interface FhirPractitioner {
   resourceType:   'Practitioner';
   id?:            string;
+  meta?:          { profile?: string[]; versionId?: string; lastUpdated?: string };
   text?:          { status: string; div: string };
   active?:        boolean;
   identifier?:    Array<{ system: string; value: string; use?: string }>;
@@ -88,6 +89,7 @@ export interface FhirPractitioner {
 export interface FhirPractitionerRole {
   resourceType:   'PractitionerRole';
   id?:            string;
+  meta?:          { profile?: string[]; versionId?: string; lastUpdated?: string };
   text?:          { status: string; div: string };
   active?:        boolean;
   period?:        { start?: string };
