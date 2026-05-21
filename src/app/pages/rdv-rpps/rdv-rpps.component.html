@@ -1,30 +1,59 @@
 <div class="topbar">
   <div class="topbar__title">Rendez-vous <span>/ par RPPS</span></div>
-  <button class="btn-gs-ghost" (click)="showPeriod.set(!showPeriod())">
-    <i class="bi bi-calendar-range"></i> Période
+  <button class="btn-gs-ghost" (click)="showCalendar.set(!showCalendar())"
+    [class.btn-gs-ghost--active]="showCalendar()">
+    <i class="bi bi-calendar-heat me-1"></i> Calendrier
   </button>
 </div>
 
-<!-- PANNEAU PÉRIODE PERSONNALISÉE -->
-@if (showPeriod()) {
-  <div class="filters-bar">
-    <div class="filters-bar__inner">
-      <div class="filter-group">
-        <label class="filter-label">Du</label>
-        <input type="date" class="gs-form__input" style="width:160px;padding:4px 8px;font-size:12px;"
-          [ngModel]="periodStart()" (ngModelChange)="periodStart.set($event)" />
+<!-- CALENDRIER HEATMAP -->
+@if (showCalendar()) {
+  <div class="cal-panel">
+    <div class="cal-panel__header">
+      <i class="bi bi-info-circle me-1"></i>
+      Cliquez un jour coloré pour y accéder directement
+      <div class="cal-legend">
+        <span class="cal-legend__item"><span class="cal-dot cal-dot--low"></span> 1–2 RDV</span>
+        <span class="cal-legend__item"><span class="cal-dot cal-dot--medium"></span> 3–4 RDV</span>
+        <span class="cal-legend__item"><span class="cal-dot cal-dot--high"></span> 5+ RDV</span>
       </div>
-      <div class="filter-group">
-        <label class="filter-label">Au</label>
-        <input type="date" class="gs-form__input" style="width:160px;padding:4px 8px;font-size:12px;"
-          [ngModel]="periodEnd()" (ngModelChange)="periodEnd.set($event)" />
+    </div>
+
+    <div class="cal-single">
+      <!-- Navigation mois -->
+      <div class="cal-nav">
+        <button class="btn-gs-ghost" style="padding:4px 10px;" (click)="prevMonth()">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+        <span class="cal-month__title">{{ monthLabel(calMonth().year, calMonth().month) }}</span>
+        <button class="btn-gs-ghost" style="padding:4px 10px;" (click)="nextMonth()">
+          <i class="bi bi-chevron-right"></i>
+        </button>
       </div>
-      <button class="btn-gs-primary" style="font-size:12px;padding:5px 14px;" (click)="applyPeriod()">
-        Appliquer
-      </button>
-      <button class="btn-gs-ghost" style="font-size:12px;" (click)="showPeriod.set(false)">
-        Annuler
-      </button>
+
+      <!-- Grille -->
+      <div class="cal-grid">
+        @for (wd of WEEKDAYS; track wd) {
+          <div class="cal-weekday">{{ wd }}</div>
+        }
+        @for (week of calMonth().weeks; track $index) {
+          @for (day of week; track $index) {
+            @if (day) {
+              <button class="cal-day"
+                [class.cal-day--today]="isToday(day)"
+                [class.cal-day--low]="dayColorClass(day) === 'cal-day--low'"
+                [class.cal-day--medium]="dayColorClass(day) === 'cal-day--medium'"
+                [class.cal-day--high]="dayColorClass(day) === 'cal-day--high'"
+                [title]="dayTooltip(day)"
+                (click)="selectDay(day)">
+                {{ +day.slice(8) }}
+              </button>
+            } @else {
+              <div class="cal-day cal-day--empty"></div>
+            }
+          }
+        }
+      </div>
     </div>
   </div>
 }

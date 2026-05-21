@@ -25,3 +25,145 @@
   font-family: sans-serif;
   font-size: 13px;
 }
+
+// ── Calendrier heatmap ───────────────────────────────────
+.cal-panel {
+  background: var(--gs-card);
+  border-bottom: 0.5px solid var(--gs-border);
+  padding: 16px 24px 20px;
+
+  &__header {
+    font-size: 12px;
+    font-family: sans-serif;
+    color: var(--gs-muted);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+}
+
+.cal-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-left: auto;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 11px;
+    font-family: sans-serif;
+    color: var(--gs-muted);
+  }
+}
+
+.cal-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+  &--low    { background: #22c55e; }
+  &--medium { background: #f59e0b; }
+  &--high   { background: #ef4444; }
+}
+
+.cal-months-grid {
+  display: flex;
+  gap: 32px;
+  flex-wrap: wrap;
+}
+
+.cal-month {
+  &__title {
+    font-size: 12px;
+    font-weight: 600;
+    font-family: sans-serif;
+    color: var(--gs-text);
+    text-transform: capitalize;
+    margin-bottom: 8px;
+    text-align: center;
+  }
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 32px);
+  gap: 2px;
+}
+
+.cal-weekday {
+  font-size: 10px;
+  font-family: sans-serif;
+  color: var(--gs-muted);
+  text-align: center;
+  padding: 2px 0 4px;
+  font-weight: 600;
+}
+
+.cal-day {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: none;
+  background: var(--gs-surface);
+  font-size: 11px;
+  font-family: sans-serif;
+  color: var(--gs-text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+
+  &:hover { border: 1.5px solid var(--gs-teal); }
+
+  &--empty { background: transparent; cursor: default; }
+
+  &--today {
+    border: 1.5px solid var(--gs-teal);
+    font-weight: 700;
+  }
+
+  &--selected {
+    background: var(--gs-teal-light);
+    color: var(--gs-teal-mid);
+    font-weight: 600;
+  }
+
+  &--low    { background: #dcfce7; color: #166534; font-weight: 600; }
+  &--medium { background: #fef3c7; color: #92400e; font-weight: 600; }
+  &--high   { background: #fee2e2; color: #991b1b; font-weight: 600; }
+}
+
+.btn-gs-ghost--active {
+  background: var(--gs-teal-light);
+  color: var(--gs-teal-mid);
+  border-color: var(--gs-teal);
+}
+
+.cal-single { width: fit-content; }
+
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+  min-width: 280px;
+}
+
+.cal-month__title {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: sans-serif;
+  color: var(--gs-text);
+  text-transform: capitalize;
+  text-align: center;
+  flex: 1;
+}
+
+// Remove old 3-month grid
+.cal-months-grid { display: none; }
