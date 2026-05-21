@@ -1,5 +1,6 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { PractitionerService } from '../../core/services/practitioner.service';
 import { Practitioner, Appointment } from '../../core/models/practitioner.model';
 
@@ -10,8 +11,9 @@ import { Practitioner, Appointment } from '../../core/models/practitioner.model'
   templateUrl: './rdv-rpps.component.html',
   styleUrl: './rdv-rpps.component.scss'
 })
-export class RdvRppsComponent {
-  private svc = inject(PractitionerService);
+export class RdvRppsComponent implements OnInit {
+  private svc   = inject(PractitionerService);
+  private route = inject(ActivatedRoute);
 
   rppsQuery    = '';
   searched     = signal(false);
@@ -24,6 +26,14 @@ export class RdvRppsComponent {
 
   // Semaine courante — lundi de la semaine en cours par défaut
   weekStart = signal<Date>(this.getMonday(new Date()));
+
+  ngOnInit(): void {
+    const rpps = this.route.snapshot.queryParamMap.get('rpps');
+    if (rpps) {
+      this.rppsQuery = rpps;
+      this.search();
+    }
+  }
 
   // ── Semaine label ──────────────────────────────────────────
   weekEnd = computed(() => {

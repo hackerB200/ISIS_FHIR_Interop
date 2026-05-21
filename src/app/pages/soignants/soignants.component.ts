@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { PractitionerService } from '../../core/services/practitioner.service';
 import { SPECIALTY_OPTIONS } from '../../core/services/fhir.service';
@@ -22,6 +22,7 @@ const DAYS = [
 export class SoignantsComponent implements OnInit {
   private svc = inject(PractitionerService);
   private fb  = inject(FormBuilder);
+  private router = inject(Router);
 
   stats = this.svc.stats;
 
@@ -92,6 +93,10 @@ export class SoignantsComponent implements OnInit {
   );
 
   ngOnInit(): void { this.svc.loadAll(); }
+
+  goToRdv(rpps: string): void {
+    this.router.navigate(['/rdv'], { queryParams: { rpps } });
+  }
 
   resetFilters(): void {
     this.filterStatut.set('tous');
